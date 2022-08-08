@@ -225,6 +225,42 @@ module.exports.apply_company = async (req, res) => {
       canApply = false;
     }
 
+    //get the student's hsc and ssc:
+    // const studentSscPercentage = student.SscPercentage;
+
+    // const studentIsBoth = student.isBoth;
+    // const studentIsHsc = student.isHsc;
+    // // const studentIsDiploma = student.isDiploma;
+
+    // const studentHscPercentage = student.hscPercentage;
+    // const studentDiplomaPercentage = student.diplomaPercentage;
+
+    // if(studentSscPercentage < company.criteria.sscPercentage){
+    //   canApply = false;
+    // }
+
+    // diploma percentage no schema
+    // handle for hsc and diploma
+    // if(isBoth){
+    // //  if(studentDiplomaPercentage < company.criteria.  && studentHscPercentage < company.criteria.hscPercentage){
+    //    canApply = false;
+    //  } 
+    // }else if(studentIsHsc){
+    //     if(studentHscPercentage < company.criteria.hscPercentage){
+    //        canApply = false;
+    //     }
+    // }else{
+    //   // if(studentDiplomaPercentage < company.criteria.){
+    //     canApply = false;
+    //   }
+    // }
+
+    //get the student's hsc and ssc:
+    // const studentTEFirstSemPercentage = student.thirdYearFirstSemCgpa;
+    // if(studentTEFirstSemPercentage < company.criteria.cgpa){
+    //   canApply = false;
+    // }
+
     const status = !canApply ? 403 : 200;
     if (status === 200) {
       student.appliedCompanies.push({

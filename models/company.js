@@ -52,6 +52,7 @@ const companySchema = new mongoose.Schema({
     cgpa: {
       type: Number,
     },
+    // gender : 
     //hsc and ssc percentage criteria not mentioned for few companies
     // either default -> 0 (or) undefined.
     sscPercentage: {
