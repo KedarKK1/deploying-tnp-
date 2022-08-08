@@ -3,13 +3,13 @@ const Student = require("../models/student");
 const jwt = require("jsonwebtoken");
 const Company = require("../models/company");
 const nodeMailer = require("nodemailer");
-
 const bcrypt = require("bcrypt");
 const File = require("../models/file");
 const crypto = require("crypto");
 const multer = require("multer");
 const fs = require("fs-extra");
 const path = require("path");
+const mongoose = require("mongoose");
 
 // handle error
 const handleErrors = (err) => {
@@ -59,7 +59,7 @@ module.exports.signup_admin = async (req, res) => {
     // const token = createToken(admin._id);
     token = await admin.generateAuthToken();
     console.log("admin token", token);
-    const usertype = "admin"
+    const usertype = "admin";
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: tokenAge * 1000,
@@ -467,49 +467,127 @@ module.exports.get_dashboard_details = async (req, res) => {
 
 module.exports.get_company_round_applied_students = async (req, res) => {
   try {
-    const studentList = await Company.find({
-      _id: req.params.companyId,
-      "appliedCompanies.roundCleared": { $gte: req.params.number },
-    });
+    const studentList = await Company.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(req.params.companyId) } },
+      { $unwind: "$appliedStudents" },
+      {
+        $match: {
+          "appliedStudents.roundCleared": {
+            $gte: parseInt(req.params.number) - 1,
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          studentId: "$appliedStudents.studentId",
+          studentName: "$appliedStudents.studentName",
+          studentEmail: "$appliedStudents.studentEmail",
+        },
+      },
+    ]);
     res.status(200).json({ success: true, studentList });
   } catch (err) {
-    res.status(400).json({ success: false, errors: err });
+    res
+      .status(400)
+      .json({
+        success: false,
+        message: "Error while getting Applied Students",
+      });
   }
 };
 
 module.exports.get_company_round_qualified_students = async (req, res) => {
   try {
-    const studentList = await Student.find({
-      _id: req.student._id,
-      "appliedCompanies.companyId": { $eq: req.params.companyId },
-      currentRound: { $gte: req.params.number },
-    });
+    const studentList = await Company.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(req.params.companyId) } },
+      { $unwind: "$appliedStudents" },
+      {
+        $match: {
+          "appliedStudents.roundCleared": { $gte: parseInt(req.params.number) },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          studentId: "$appliedStudents.studentId",
+          studentName: "$appliedStudents.studentName",
+          studentEmail: "$appliedStudents.studentEmail",
+        },
+      },
+    ]);
     res.status(200).json({ success: true, studentList });
   } catch (err) {
-    res.status(400).json({ success: false, errors: err });
+    res
+      .status(400)
+      .json({
+        success: false,
+        message: "Error while getting Qualified Students",
+      });
+  }
+};
+
+module.exports.get_company_round_disqualified_students = async (req, res) => {
+  try {
+    const studentList = await Company.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(req.params.companyId) } },
+      { $unwind: "$appliedStudents" },
+      {
+        $match: {
+          $and: [
+            {
+              "appliedStudents.roundCleared": {
+                $eq: parseInt(req.params.number) - 1,
+              },
+            },
+            { "appliedStudents.studentResult": { $eq: false } },
+          ],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          studentId: "$appliedStudents.studentId",
+          studentName: "$appliedStudents.studentName",
+          studentEmail: "$appliedStudents.studentEmail",
+        },
+      },
+    ]);
+    res.status(200).json({ success: true, studentList });
+  } catch (err) {
+    res
+      .status(400)
+      .json({
+        success: false,
+        message: "Error while getting Disqualified Students",
+      });
   }
 };
 
 //
 //Generate Placement Report:
 
-module.exports.get_report_branch_wise = async (req, res) => {
-  const dept = req.query.Dept;
+module.exports.get_placed_students = async (req, res) => {
+  // const dept = req.query.Dept;
 
-  let students;
-  if (dept == "all") {
-    students = await Student.find({ $or: [{ isLTE20: { $eq: true } }, { isGT20: { $eq: true } }]});
-  } else {
-    // students = await Student.find({ branch: { $eq: dept } });
-    students = await Student.find(
-      {
-        $and: [
-          { branch: { $eq: dept } },
-          { $or: [{ isLTE20: { $eq: true } }, { isGT20: { $eq: true } }] }
-        ]
-      }
-    );
-  }
+  // let students;
+  // if (dept == "all") {
+  //   students = await Student.find({ $or: [{ isLTE20: { $eq: true } }, { isGT20: { $eq: true } }]});
+  // } else {
+  //   // students = await Student.find({ branch: { $eq: dept } });
+  //   students = await Student.find(
+  //     {
+  //       $and: [
+  //         { branch: { $eq: dept } },
+  //         { $or: [{ isLTE20: { $eq: true } }, { isGT20: { $eq: true } }] }
+  //       ]
+  //     }
+  //   );
+  // }
+
+  let students = await Student.find({
+    $or: [{ isLTE20: { $eq: true } }, { isGT20: { $eq: true } }],
+  });
 
   if (!students) {
     return res

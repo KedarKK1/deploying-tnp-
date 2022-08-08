@@ -384,7 +384,7 @@ module.exports.validate = (student) => {
     password: Joi.string().required().min(7),
 
     isLTE20: Joi.boolean(),
-    isGTE20: Joi.boolean(),
+    isGT20: Joi.boolean(),
   });
 
   return schema.validate(student);

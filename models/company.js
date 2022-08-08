@@ -49,6 +49,11 @@ const companySchema = new mongoose.Schema({
       it: { type: Boolean },
       entc: { type: Boolean },
     },
+    gender: {
+      male: { type: Boolean },
+      female: { type: Boolean },
+      both: { type: Boolean },
+    },
     cgpa: {
       type: Number,
     },
@@ -101,7 +106,11 @@ const companySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Student",
       },
-      email: {
+      studentName: {
+        type: String,
+        required: true,
+      },
+      studentEmail: {
         type: String,
         required: true,
       },
