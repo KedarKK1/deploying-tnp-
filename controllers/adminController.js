@@ -26,7 +26,7 @@ const handleErrors = (err) => {
   }
 
   // duplicate error code
-  if (err.code == 11000) {
+  if (err.code === 11000) {
     errors.email = "that email existed earlier";
   }
 
@@ -571,7 +571,7 @@ module.exports.get_placed_students = async (req, res) => {
   // const dept = req.query.Dept;
 
   // let students;
-  // if (dept == "all") {
+  // if (dept === "all") {
   //   students = await Student.find({ $or: [{ isLTE20: { $eq: true } }, { isGT20: { $eq: true } }]});
   // } else {
   //   // students = await Student.find({ branch: { $eq: dept } });

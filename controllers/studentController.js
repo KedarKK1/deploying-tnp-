@@ -55,7 +55,7 @@ const handleErrors = (err) => {
   }
 
   // duplicate error code
-  if (err.code == 11000) {
+  if (err.code === 11000) {
     errors.email = "that email existed earlier";
   }
 
@@ -250,11 +250,11 @@ module.exports.apply_company = async (req, res) => {
     );
 
     if (!bothApplicable) {
-      if (studentGender == "female") {
+      if (studentGender === "female") {
         if (!femaleApplicable) {
           canApply = false;
         }
-      } else if (studentGender == "male") {
+      } else if (studentGender === "male") {
         if (!maleApplicable) {
           canApply = false;
         }
@@ -264,13 +264,6 @@ module.exports.apply_company = async (req, res) => {
 
     //get the student's hsc and ssc:
     const studentSscPercentage = student.sscPercentage;
-
-    // const studentIsBoth = student.isBoth;
-    // const studentIsHsc = student.isHsc;
-    // // const studentIsDiploma = student.isDiploma;
-
-    // const studentHscPercentage = student.hscPercentage;
-    // const studentDiplomaPercentage = student.diplomaPercentage;
 
     if (studentSscPercentage < company.criteria.sscPercentage) {
       console.log(
@@ -282,28 +275,6 @@ module.exports.apply_company = async (req, res) => {
       canApply = false;
     }
     console.log("canapply after ssc cheking", canApply);
-
-    // diploma percentage no schema
-    // handle for hsc and diploma
-    // if(studentIsHsc){
-    //     if(studentHscPercentage < company.criteria.hscPercentage){
-    //        canApply = false;
-    //     }
-    // }else{
-    //   // if(studentDiplomaPercentage < company.criteria.){
-    //     canApply = false;
-    //   }
-    // }
-
-    //get the student's hsc and ssc:
-    // const studentTEFirstSemPercentage = student.thirdYearFirstSemCgpa;
-    // if(studentTEFirstSemPercentage < company.criteria.cgpa){
-    //   canApply = false;
-    // }
-    // let frontend handle the gte 20 c.t.c. part
-    // currentRound and finalResult are by default stored 0 and false in db
-    // const student = await Student.findById(req.student._id);
-    // console.log(student);
 
     //END DATE CRITERIA:
     //checking the End Date:
@@ -318,11 +289,13 @@ module.exports.apply_company = async (req, res) => {
 
     let companyEndDate = company.endDate;
     let formattedCompanyEndDate = companyEndDate.toISOString().split("T")[0];
+    console.log("Todays date is:", todaysDate);
+    console.log("Companys end date is:", formattedCompanyEndDate);
 
-    // console.log("Todays date is:", todaysDate);
-    // console.log("Companys end date is:", formattedCompanyEndDate);
-
-    if (formattedCompanyEndDate < todaysDate) {
+    /**
+     * todo : Check Date Criteria
+     */
+    if (formattedCompanyEndDate > todaysDate) {
       canApply = false;
     }
     console.log("canApply after end-date checking:", canApply);
@@ -330,38 +303,21 @@ module.exports.apply_company = async (req, res) => {
     //get the student's hsc and ssc:
     // const studentSscPercentage = student.SscPercentage;
 
-    // const studentIsBoth = student.isBoth;
-    // const studentIsHsc = student.isHsc;
-    // // const studentIsDiploma = student.isDiploma;
+    //Checking Amcat Criteria:
+    if (company.criteria.RequiredAmcatScore > student.AmcatScore) {
+      canApply = false;
+    }
+    console.log("canApply after AMCAT checking:", canApply);
 
-    // const studentHscPercentage = student.hscPercentage;
-    // const studentDiplomaPercentage = student.diplomaPercentage;
+    if (company.criteria.RequiredAttendance > student.attendance) {
+      canApply = false;
+    }
+    console.log("canApply after attendance checking:", canApply);
 
-    // if(studentSscPercentage < company.criteria.sscPercentage){
-    //   canApply = false;
-    // }
-
-    // diploma percentage no schema
-    // handle for hsc and diploma
-    // if(isBoth){
-    // //  if(studentDiplomaPercentage < company.criteria.  && studentHscPercentage < company.criteria.hscPercentage){
-    //    canApply = false;
-    //  } 
-    // }else if(studentIsHsc){
-    //     if(studentHscPercentage < company.criteria.hscPercentage){
-    //        canApply = false;
-    //     }
-    // }else{
-    //   // if(studentDiplomaPercentage < company.criteria.){
-    //     canApply = false;
-    //   }
-    // }
-
-    //get the student's hsc and ssc:
-    // const studentTEFirstSemPercentage = student.thirdYearFirstSemCgpa;
-    // if(studentTEFirstSemPercentage < company.criteria.cgpa){
-    //   canApply = false;
-    // }
+    if (company.criteria.engCgpa > student.aggrCgpa) {
+      canApply = false;
+    }
+    console.log("canApply after aggr.CGPA checking:", canApply);
 
     const status = !canApply ? 403 : 200;
     console.log("Final status cheking", status);

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { validator, isEmail, isURL } = require("validator");
+const { isEmail } = require("validator");
 
 const companySchema = new mongoose.Schema({
   name: {
@@ -54,12 +54,18 @@ const companySchema = new mongoose.Schema({
       female: { type: Boolean },
       both: { type: Boolean },
     },
-    cgpa: {
+    engCgpa: {
       type: Number,
     },
-    // gender : 
-    //hsc and ssc percentage criteria not mentioned for few companies
-    // either default -> 0 (or) undefined.
+    //New changes:
+    RequiredAmcatScore: {
+      type: Number,
+      default: 0,
+    },
+    RequiredAttendance: {
+      type: Number,
+      default: 0,
+    },
     sscPercentage: {
       type: Number,
     },

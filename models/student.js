@@ -143,6 +143,14 @@ const studentSchema = new mongoose.Schema({
   },
   // Diploma details
 
+  //Year Gap
+  yearGap: {
+    type: Number,
+  },
+  reasonOfYearGap: {
+    type: String,
+  },
+
   // percentage
   diplomaPercentage: {
     type: Number,
@@ -193,6 +201,11 @@ const studentSchema = new mongoose.Schema({
     required: true,
     max: 10,
   },
+  aggrCgpa: {
+    type: Number,
+    required: true,
+    max: 10,
+  },
   activeBacklog: {
     type: Number,
     required: true,
@@ -230,9 +243,13 @@ const studentSchema = new mongoose.Schema({
     required: true,
   },
   // Amcat details
-  appearedForAmcat: {
-    type: String,
-    required: true,
+  AmcatScore: {
+    type: Number,
+    default: 0,
+  },
+  attendance: {
+    type: Number,
+    default: 0,
   },
   password: {
     type: String,
@@ -380,11 +397,17 @@ module.exports.validate = (student) => {
     citizenship: Joi.string().required(),
     planningForHigherEducation: Joi.string().required(),
     // Amcat details
-    appearedForAmcat: Joi.string().required(),
+    AmcatScore: Joi.number(),
     password: Joi.string().required().min(7),
 
     isLTE20: Joi.boolean(),
     isGT20: Joi.boolean(),
+
+    //new validations:
+    attendance: Joi.number(),
+    yearGap: Joi.number(),
+    reasonOfYearGap: Joi.string(),
+    aggrCgpa: Joi.number().max(10).required(),
   });
 
   return schema.validate(student);
